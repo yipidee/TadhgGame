@@ -16,6 +16,15 @@ public abstract class Sprite {
     private double dx, dy;     //the horizontal and vertical velocity
     private double ddx, ddy;   //the horizontal and vertical acceleration
     private int width, height;  //the sprite width and height
+    private double angle;
+
+    public double getAngle() {
+        return angle;
+    }
+
+    public void setAngle(double angle) {
+        this.angle = angle;
+    }
 
     public Sprite() {
     }
