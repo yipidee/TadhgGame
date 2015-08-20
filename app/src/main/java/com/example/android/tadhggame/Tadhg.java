@@ -34,6 +34,7 @@ public class Tadhg extends Sprite {
     final private int OFFSET_Y = 15;
     final private double MAX_DY = 50;
     final private double MAX_ROTATE = Math.PI/4;
+
     //calculate values, can't be final due to pixel density differences
     private int MAX_Y;
     private int MIN_Y;
@@ -42,7 +43,8 @@ public class Tadhg extends Sprite {
     private Context mContext;
     private Drawable tadhg;
     private int mState;
-    private long lastDrawTime;
+    private long mLastDrawTime;
+    private int mLives;
 
     public Tadhg(Context c, int w, int h){
         super();
@@ -55,6 +57,7 @@ public class Tadhg extends Sprite {
         setWidth(w);
         setHeight(h);
         setX(OFFSET_X);
+        mLives = 3;
 
         //get display size
         WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
@@ -69,17 +72,29 @@ public class Tadhg extends Sprite {
         setDdy(FALLING_DDY);
         setAngle(0);
         mState=FALLING;
-        lastDrawTime=System.currentTimeMillis()+50;
+        mLastDrawTime =System.currentTimeMillis()+50;
+    }
+
+    public void livesDown(){
+        mLives--;
+    }
+
+    public void setLives(int i){
+        mLives=i;
+    }
+
+    public int getLives(){
+        return mLives;
     }
 
     private void updatePhysics(long timeNow){
 
-        if(lastDrawTime>timeNow) return;
+        if(mLastDrawTime >timeNow) return;
 
         int initialY = getY();
         double initialDy = getDy();
         double initialAngle = getAngle();
-        long deltaT = timeNow - lastDrawTime;
+        long deltaT = timeNow - mLastDrawTime;
 
         double newDy;
         double newAngle;
@@ -125,7 +140,7 @@ public class Tadhg extends Sprite {
         setY(newY);
         setDdy(newDy);
         setAngle(newAngle);
-        lastDrawTime=timeNow;
+        mLastDrawTime =timeNow;
     }
 
     public void draw(Canvas c){
