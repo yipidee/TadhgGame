@@ -5,8 +5,6 @@ import android.graphics.Canvas;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
-import android.view.Display;
-import android.view.WindowManager;
 
 /**
  * Tadhg class
@@ -60,10 +58,7 @@ public class Tadhg extends Sprite {
         mLives = 3;
 
         //get display size
-        WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
-        Display d = wm.getDefaultDisplay();
-        Point p = new Point();
-        d.getSize(p);
+        Point p = Utility.getScreenExtents(mContext);
 
         setY((p.y - 2 * h) / 2);
         MAX_Y=p.y-h-OFFSET_Y;
@@ -87,7 +82,7 @@ public class Tadhg extends Sprite {
         return mLives;
     }
 
-    private void updatePhysics(long timeNow){
+    public void updatePhysics(long timeNow){
 
         if(mLastDrawTime >timeNow) return;
 
@@ -146,5 +141,9 @@ public class Tadhg extends Sprite {
     public void draw(Canvas c){
         tadhg.setBounds(getX(),getY(),getX()+getWidth(),getY()+getHeight());
         tadhg.draw(c);
+    }
+
+    public void setState(int state){
+        mState=state;
     }
 }

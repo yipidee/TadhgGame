@@ -5,8 +5,6 @@ import android.graphics.Canvas;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
-import android.view.Display;
-import android.view.WindowManager;
 
 import java.util.Random;
 
@@ -64,10 +62,7 @@ public class Enemy extends Sprite {
         enemy.setHeight(h);
 
         //get width of display
-        WindowManager wm = (WindowManager) enemy.getContext().getSystemService(Context.WINDOW_SERVICE);
-        Display d = wm.getDefaultDisplay();
-        Point p = new Point();
-        d.getSize(p);
+        Point p = Utility.getScreenExtents(c);
 
         enemy.setX(p.x - w);
         enemy.setY(enemy.getAmplitude() + rand.nextInt(p.y - h - 2 * enemy.getAmplitude()));
