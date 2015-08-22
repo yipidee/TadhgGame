@@ -7,10 +7,16 @@ import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
 
+    GameView gv;
+    GameView.GameThread t;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        gv = (GameView)findViewById(R.id.game_view);
+        t = gv.getThread();
     }
 
     @Override

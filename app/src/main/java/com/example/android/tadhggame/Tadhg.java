@@ -25,12 +25,12 @@ public class Tadhg extends Sprite {
     final static public int FALLING = 1;
 
     //physics constants
-    final private double FALLING_DDY = 10;  //positive is down
-    final private double FLYING_DDY = -7;
+    private double FALLING_DDY;  //positive is down
+    private double FLYING_DDY;
     final private double ROT_VEL = Math.PI/60;
-    final private int OFFSET_X = 15;
+    final private int OFFSET_X = 0;
     final private int OFFSET_Y = 15;
-    final private double MAX_DY = 50;
+    private double MAX_DY;
     final private double MAX_ROTATE = Math.PI/4;
 
     //calculate values, can't be final due to pixel density differences
@@ -43,6 +43,7 @@ public class Tadhg extends Sprite {
     private int mState;
     private long mLastDrawTime;
     private int mLives;
+    private boolean atTop, atBottom;
 
     public Tadhg(Context c, int w, int h){
         super();
@@ -64,10 +65,15 @@ public class Tadhg extends Sprite {
         MAX_Y=p.y-h-OFFSET_Y;
         MIN_Y=OFFSET_Y;
         setDy(0);
-        setDdy(FALLING_DDY);
         setAngle(0);
         mState=FALLING;
-        mLastDrawTime =System.currentTimeMillis()+50;
+        MAX_DY=(double)p.y/(double)2500;  // max velocity pixels per millisec
+        FALLING_DDY=MAX_DY/1000;  // falling acceleration
+        FLYING_DDY=FALLING_DDY*-0.75;  // flying acceleration
+        setDdy(FALLING_DDY);
+        atTop=false;
+        atBottom=false;
+        mLastDrawTime =System.currentTimeMillis();
     }
 
     public void livesDown(){
@@ -117,11 +123,14 @@ public class Tadhg extends Sprite {
                 newDy=-MAX_DY;
             }
         }
+        atTop=atBottom=false;
         newY = initialY + (int)((newDy+initialDy)/2*deltaT);
         if(newY>=MAX_Y){
             newY=MAX_Y;
+            atBottom=true;
         }else if(newY<=MIN_Y){
             newY=MIN_Y;
+            atTop=true;
         }
         if(Math.abs(newAngle)>=MAX_ROTATE){
             if(newAngle>=MAX_ROTATE){
@@ -133,7 +142,7 @@ public class Tadhg extends Sprite {
 
         //update physics properties
         setY(newY);
-        setDdy(newDy);
+        setDy(newDy);
         setAngle(newAngle);
         mLastDrawTime =timeNow;
     }
@@ -141,6 +150,14 @@ public class Tadhg extends Sprite {
     public void draw(Canvas c){
         tadhg.setBounds(getX(),getY(),getX()+getWidth(),getY()+getHeight());
         tadhg.draw(c);
+    }
+
+    public boolean atBottom(){
+        return atBottom;
+    }
+
+    public boolean atTop(){
+        return atTop;
     }
 
     public void setState(int state){
