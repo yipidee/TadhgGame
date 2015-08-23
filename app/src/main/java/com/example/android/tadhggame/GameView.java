@@ -1,7 +1,6 @@
 package com.example.android.tadhggame;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.os.Handler;
@@ -41,6 +40,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         private final static long GHOST_TIME = 7500;
         private final static double TADHG_RATIO = 1.4427;
         private final static double ENEMY_RATIO = 0.6667;
+        private final static long MIN_WAIT = 20;
 
         //member variables
         private Handler mHandler;
@@ -53,16 +53,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         private SurfaceHolder mSurfaceHolder;
 
-        private Bitmap bg1;
-        private Bitmap bg2;
-        private Bitmap bg3;
-        private Bitmap fg;
-
         private Paint scorePaint;
         private Paint messagePaint;
 
         private Tadhg tadhg;
         private ArrayList<Enemy> enemies;
+        private Background bg;
 
         private int tadhgWidth;
         private int tadhgHeight;
@@ -72,7 +68,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             mSurfaceHolder=surfaceholder;
             mContext=c;
             mHandler=handler;
-            mLastDrawTime=System.currentTimeMillis();
         }
 
         public void initThreadObjects(){
@@ -83,6 +78,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
             tadhg = new Tadhg(mContext, tadhgWidth, tadhgHeight);
             enemies = new ArrayList<>();
+            bg=new Background(mContext);
+
+            mLastDrawTime=System.currentTimeMillis();
 
             setState(READY);
         }
@@ -96,26 +94,32 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     synchronized (mSurfaceHolder){
                         switch(mState){
                             case READY:
-                                tadhg.updatePhysics(System.currentTimeMillis());
+                                mNowTime=System.currentTimeMillis();
+                                tadhg.updatePhysics(mNowTime);
                                 if(tadhg.isPastBingoBottom()&&tadhg.getState()==Tadhg.FALLING){
                                     tadhg.setState(Tadhg.FLYING);
                                 }else if(tadhg.isPastBingoTop()&&tadhg.getState()==Tadhg.FLYING){
                                     tadhg.setState(Tadhg.FALLING);
                                 }
+                                bg.updatePhysics();
                                 synchronized (mRunLock) {
                                     if (mRun) {
-                                        mNowTime = System.currentTimeMillis();
                                         mFPS=(double)1000/(double)(mNowTime-mLastDrawTime);
                                         Log.i("FPS: ",Double.toString(mFPS));
                                         c.drawColor(mContext.getResources().getColor(R.color.skyblue));
+                                        bg.draw(c);
                                         tadhg.draw(c);
-                                        mLastDrawTime=mNowTime;
                                     }
                                 }
+                                if(mNowTime-mLastDrawTime<MIN_WAIT){
+                                    sleep(MIN_WAIT-(mNowTime-mLastDrawTime));
+                                }
+                                mLastDrawTime=mNowTime;
                                 break;
                         }
                     }
-                }finally{
+                }catch(InterruptedException e){
+                    e.printStackTrace();                }finally{
                     if(c!=null){
                         mSurfaceHolder.unlockCanvasAndPost(c);
                     }
