@@ -2,7 +2,6 @@ package com.example.android.tadhggame;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 
@@ -30,6 +29,7 @@ public class Tadhg extends Sprite {
     final private double ROT_VEL = Math.PI/60;
     final private int OFFSET_X = 0;
     final private int OFFSET_Y = 15;
+    private int BingoTop, BingoBottom;
     private double MAX_DY;
     final private double MAX_ROTATE = Math.PI/4;
 
@@ -50,6 +50,22 @@ public class Tadhg extends Sprite {
         init(c, w, h);
     }
 
+    public boolean isPastBingoTop(){
+        boolean res = false;
+        if (getY()<=BingoTop)res=true;
+        return res;
+    }
+
+    public boolean isPastBingoBottom(){
+        boolean res = false;
+        if(getY()>=BingoBottom)res=true;
+        return res;
+    }
+
+    public int getState(){
+        return mState;
+    }
+
     private void init(Context c, int w, int h){
         mContext=c;
         tadhg= ContextCompat.getDrawable(mContext,R.drawable.img_tadhg);
@@ -59,20 +75,25 @@ public class Tadhg extends Sprite {
         mLives = 3;
 
         //get display size
-        Point p = Utility.getScreenExtents(mContext);
+        int surfaceH=Utility.getSurfaceHeight();
 
-        setY((p.y - 2 * h) / 2);
-        MAX_Y=p.y-h-OFFSET_Y;
+        setY((surfaceH - 2 * h) / 2);
+        MAX_Y=surfaceH-h-OFFSET_Y;
         MIN_Y=OFFSET_Y;
         setDy(0);
         setAngle(0);
         mState=FALLING;
-        MAX_DY=(double)p.y/(double)2500;  // max velocity pixels per millisec
-        FALLING_DDY=MAX_DY/1000;  // falling acceleration
-        FLYING_DDY=FALLING_DDY*-0.75;  // flying acceleration
+        MAX_DY=(double)surfaceH/(double)1450;  // max velocity pixels per millisec
+        FALLING_DDY=MAX_DY/550;  // falling acceleration
+        FLYING_DDY=FALLING_DDY*-0.75;  // flying ac        BingoBottom=surfaceH-;celeration
         setDdy(FALLING_DDY);
         atTop=false;
         atBottom=false;
+
+        //get bingo values for Ready mode
+        BingoTop=(int)((MAX_DY*MAX_DY)/(2*Math.abs(FALLING_DDY)))+OFFSET_Y;
+        BingoBottom=surfaceH-(int)((MAX_DY*MAX_DY)/(2*Math.abs(FLYING_DDY)))-h-OFFSET_Y;
+
         mLastDrawTime =System.currentTimeMillis();
     }
 

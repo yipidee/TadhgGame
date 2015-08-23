@@ -2,7 +2,6 @@ package com.example.android.tadhggame;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 
@@ -11,9 +10,9 @@ import java.util.Random;
 /**
  * Enenmy class
  * Has a static spawn() function that randomly creates and places new Enemy characters on the screen
- * <p>
+ * <p/>
  * Extends: Sprite
- * <p>
+ * <p/>
  * Date     Rev  Author       Description
  * =======  ===  ===========  ===========================
  * 15.8.14    0  A. Connolly  Initial implementation
@@ -62,12 +61,13 @@ public class Enemy extends Sprite {
         enemy.setHeight(h);
 
         //get width of display
-        Point p = Utility.getScreenExtents(c);
+        int surfaceW = Utility.getSurfaceWidth();
+        int surfaceH = Utility.getSurfaceHeight();
 
-        enemy.setX(p.x - w);
-        enemy.setY(enemy.getAmplitude() + rand.nextInt(p.y - h - 2 * enemy.getAmplitude()));
+        enemy.setX(surfaceW - w);
+        enemy.setY(enemy.getAmplitude() + rand.nextInt(surfaceH - h - 2 * enemy.getAmplitude()));
         enemy.setState(state);
-        enemy.setWidthCoefficient(Math.PI * 6 / (double) p.x);
+        enemy.setWidthCoefficient(Math.PI * 6 / (double) surfaceW);
         return enemy;
     }
 

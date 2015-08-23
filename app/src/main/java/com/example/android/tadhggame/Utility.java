@@ -1,10 +1,5 @@
 package com.example.android.tadhggame;
 
-import android.content.Context;
-import android.graphics.Point;
-import android.view.Display;
-import android.view.WindowManager;
-
 /**
  * Utility class
  * Collection of static methods common to objects in the
@@ -20,20 +15,24 @@ import android.view.WindowManager;
  */
 public class Utility {
 
-    //static Point variable to register size of screen
-    private static Point p;
+    //static canvas width and height variables
+    private static boolean isSet = false;
+    private static int w,h;
 
     //public method called to calculate and register screen size
-    public static Point getScreenExtents(Context c){
-        if(p==null) setP(c);
-        return p;
+    public static int getSurfaceWidth(){
+        if(!isSet) return -1;
+        return w;
     }
 
-    //private function that actually sets the p variable
-    private static void setP(Context c){
-        WindowManager wm = (WindowManager) c.getSystemService(Context.WINDOW_SERVICE);
-        Display d = wm.getDefaultDisplay();
-        p = new Point();
-        d.getSize(p);
+    public static int getSurfaceHeight(){
+        if(!isSet) return -1;
+        return h;
+    }
+
+    public static void setSizes(int width, int height){
+        w=width;
+        h=height;
+        isSet=true;
     }
 }

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
@@ -47,11 +46,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         private Handler mHandler;
         private int mState;
         private Context mContext;
-
+        private double mFPS;
+        private long mLastDrawTime, mNowTime;
         private boolean mRun = false;
         private final Object mRunLock = new Object();
-
-        private int BG_COLOUR;
 
         private SurfaceHolder mSurfaceHolder;
 
@@ -74,17 +72,17 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             mSurfaceHolder=surfaceholder;
             mContext=c;
             mHandler=handler;
+            mLastDrawTime=System.currentTimeMillis();
+        }
 
-            //determine suitable sizes for sprites
-            Point p = Utility.getScreenExtents(mContext);
-            tadhgHeight=p.y/6;
+        public void initThreadObjects(){
+            //determine suitable sizes for spr
+            tadhgHeight=Utility.getSurfaceHeight()/5;
             tadhgWidth = (int)((double)tadhgHeight*TADHG_RATIO);
             enemyDim =(int)((double)tadhgHeight*ENEMY_RATIO);
 
             tadhg = new Tadhg(mContext, tadhgWidth, tadhgHeight);
             enemies = new ArrayList<>();
-
-            BG_COLOUR = mContext.getResources().getColor(android.R.color.holo_green_light);
 
             setState(READY);
         }
@@ -99,17 +97,22 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                         switch(mState){
                             case READY:
                                 tadhg.updatePhysics(System.currentTimeMillis());
-                                if(tadhg.atBottom()){
+                                if(tadhg.isPastBingoBottom()&&tadhg.getState()==Tadhg.FALLING){
                                     tadhg.setState(Tadhg.FLYING);
-                                }else if(tadhg.atTop()){
+                                }else if(tadhg.isPastBingoTop()&&tadhg.getState()==Tadhg.FLYING){
                                     tadhg.setState(Tadhg.FALLING);
                                 }
                                 synchronized (mRunLock) {
                                     if (mRun) {
-                                        c.drawColor(BG_COLOUR);
+                                        mNowTime = System.currentTimeMillis();
+                                        mFPS=(double)1000/(double)(mNowTime-mLastDrawTime);
+                                        Log.i("FPS: ",Double.toString(mFPS));
+                                        c.drawColor(mContext.getResources().getColor(R.color.skyblue));
                                         tadhg.draw(c);
+                                        mLastDrawTime=mNowTime;
                                     }
                                 }
+                                break;
                         }
                     }
                 }finally{
@@ -148,7 +151,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
                     case READY:
                         if(action==MotionEvent.ACTION_DOWN){
-                            setState(RUNNING);
+                            //setState(RUNNING);
+                            setState(READY);
                         }
                         evHandled=true;
                         break;
@@ -163,7 +167,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     //GameView member variables
-    Context mContext;
     GameThread mThread;
 
     public GameView(Context c, AttributeSet attr){
@@ -206,8 +209,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
-    public void surfaceChanged(SurfaceHolder holder, int a, int b, int c){
-        //do nattin'
+    public void surfaceChanged(SurfaceHolder holder, int a, int w, int h){
+        Utility.setSizes(w,h);
+        mThread.initThreadObjects();
     }
 
     public void surfaceCreated(SurfaceHolder holder){
