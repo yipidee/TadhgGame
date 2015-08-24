@@ -2,7 +2,6 @@ package com.example.android.tadhggame;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
@@ -40,7 +39,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         private final static long GHOST_TIME = 7500;
         private final static double TADHG_RATIO = 1.4427;
         private final static double ENEMY_RATIO = 0.6667;
-        private final static long MIN_WAIT = 20;
+        private final static long MIN_WAIT = 40;
 
         //member variables
         private Handler mHandler;
@@ -52,9 +51,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         private final Object mRunLock = new Object();
 
         private SurfaceHolder mSurfaceHolder;
-
-        private Paint scorePaint;
-        private Paint messagePaint;
 
         private Tadhg tadhg;
         private ArrayList<Enemy> enemies;
@@ -106,12 +102,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                                     if (mRun) {
                                         mFPS=(double)1000/(double)(mNowTime-mLastDrawTime);
                                         Log.i("FPS: ",Double.toString(mFPS));
-                                        c.drawColor(mContext.getResources().getColor(R.color.skyblue));
                                         bg.draw(c);
                                         tadhg.draw(c);
                                     }
                                 }
-                                if(mNowTime-mLastDrawTime<MIN_WAIT){
+                                if((mNowTime-mLastDrawTime)<MIN_WAIT){
                                     sleep(MIN_WAIT-(mNowTime-mLastDrawTime));
                                 }
                                 mLastDrawTime=mNowTime;

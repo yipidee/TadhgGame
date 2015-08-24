@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.Rect;
 
 /**
@@ -24,6 +25,7 @@ public class Background {
     private Context mContext;
 
     private int mBG_Color;
+    private Paint mPaint;
 
     private Bitmap mMountains;
     private Bitmap mClouds;
@@ -40,6 +42,14 @@ public class Background {
     public Background(Context c){
         mContext = c;
         Resources res = mContext.getResources();
+
+        // set paint for drawing Bitmaps
+        mPaint = new Paint();
+        mPaint.setAntiAlias(true);
+        mPaint.setDither(true);
+
+        //background colour
+        mBG_Color=res.getColor(R.color.skyblue);
 
         //load Bitmaps
         mMountains = BitmapFactory.decodeResource(res, R.drawable.mountain);
@@ -66,6 +76,7 @@ public class Background {
     }
 
     public void draw(Canvas c){
-        c.drawBitmap(mMountains,mMountSrc,mDstRect,null);
+        c.drawColor(mBG_Color);
+        c.drawBitmap(mMountains,mMountSrc,mDstRect,mPaint);
     }
 }
