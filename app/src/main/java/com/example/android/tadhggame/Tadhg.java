@@ -41,7 +41,6 @@ public class Tadhg extends Sprite {
     private Context mContext;
     private Drawable tadhg;
     private int mState;
-    private long mLastDrawTime;
     private int mLives;
     private boolean atTop, atBottom;
 
@@ -93,8 +92,6 @@ public class Tadhg extends Sprite {
         //get bingo values for Ready mode
         BingoTop=(int)((MAX_DY*MAX_DY)/(2*Math.abs(FALLING_DDY)))+OFFSET_Y;
         BingoBottom=surfaceH-(int)((MAX_DY*MAX_DY)/(2*Math.abs(FLYING_DDY)))-h-OFFSET_Y;
-
-        mLastDrawTime =System.currentTimeMillis();
     }
 
     public void livesDown(){
@@ -109,14 +106,13 @@ public class Tadhg extends Sprite {
         return mLives;
     }
 
-    public void updatePhysics(long timeNow){
+    public void updatePhysics(long delta){
 
-        if(mLastDrawTime >timeNow) return;
+        if(delta<0) return;
 
         int initialY = getY();
         double initialDy = getDy();
         double initialAngle = getAngle();
-        long deltaT = timeNow - mLastDrawTime;
 
         double newDy;
         double newAngle;
@@ -124,12 +120,12 @@ public class Tadhg extends Sprite {
 
         switch(mState){
             case FALLING:
-                newDy = initialDy+FALLING_DDY*deltaT;
-                newAngle=initialAngle+ROT_VEL*deltaT;
+                newDy = initialDy+FALLING_DDY*delta;
+                newAngle=initialAngle+ROT_VEL*delta;
                 break;
             case FLYING:
-                newDy = initialDy+FLYING_DDY*deltaT;
-                newAngle=initialAngle-ROT_VEL*deltaT;
+                newDy = initialDy+FLYING_DDY*delta;
+                newAngle=initialAngle-ROT_VEL*delta;
                 break;
             default:
                 newDy = initialDy;
@@ -145,7 +141,7 @@ public class Tadhg extends Sprite {
             }
         }
         atTop=atBottom=false;
-        newY = initialY + (int)((newDy+initialDy)/2*deltaT);
+        newY = initialY + (int)((newDy+initialDy)/2*delta);
         if(newY>=MAX_Y){
             newY=MAX_Y;
             atBottom=true;
@@ -165,7 +161,6 @@ public class Tadhg extends Sprite {
         setY(newY);
         setDy(newDy);
         setAngle(newAngle);
-        mLastDrawTime =timeNow;
     }
 
     public void draw(Canvas c){

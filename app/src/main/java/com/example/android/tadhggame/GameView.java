@@ -11,6 +11,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * GameView class
@@ -35,7 +36,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         public final static int GAMEOVER = 3;
 
         //Game Constants
-        private final static long SPAWN_TIME = 500;
+        private final static long SPAWN_TIME = 1500;
         private final static long GHOST_TIME = 7500;
         private final static double TADHG_RATIO = 1.4427;
         private final static double ENEMY_RATIO = 0.6667;
@@ -46,7 +47,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         private int mState;
         private Context mContext;
         private double mFPS;
-        private long mLastDrawTime, mNowTime;
+        private long mLastDrawTime, mNowTime, mLastSpawnTime;
         private boolean mRun = false;
         private final Object mRunLock = new Object();
 
@@ -76,7 +77,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             enemies = new ArrayList<>();
             bg=new Background(mContext);
 
-            mLastDrawTime=System.currentTimeMillis();
+            mLastDrawTime=System.currentTimeMillis()+100;
+            mLastSpawnTime = mLastDrawTime;
 
             setState(READY);
         }
@@ -85,13 +87,29 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         public void run(){
             while(mRun){
                 Canvas c = null;
+                long delta=0;
+                Iterator<Enemy> iterator;
+                Enemy enemy;
                 try{
                     c = mSurfaceHolder.lockCanvas(null);
                     synchronized (mSurfaceHolder){
                         switch(mState){
                             case READY:
                                 mNowTime=System.currentTimeMillis();
-                                tadhg.updatePhysics(mNowTime);
+                                delta = mNowTime-mLastDrawTime;
+                                if((mNowTime-mLastSpawnTime)>=SPAWN_TIME) {
+                                    enemies.add(Enemy.spawn(mContext,Enemy.NORMAL,enemyDim,enemyDim));
+                                    mLastSpawnTime=mNowTime;
+                                }
+                                iterator=enemies.iterator();
+                                while(iterator.hasNext()){
+                                    enemy=iterator.next();
+                                    enemy.updatePhysics(delta);
+                                    if(enemy.getX()<-enemyDim){
+                                        iterator.remove();
+                                    }
+                                }
+                                tadhg.updatePhysics(delta);
                                 if(tadhg.isPastBingoBottom()&&tadhg.getState()==Tadhg.FALLING){
                                     tadhg.setState(Tadhg.FLYING);
                                 }else if(tadhg.isPastBingoTop()&&tadhg.getState()==Tadhg.FLYING){
@@ -100,25 +118,32 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                                 bg.updatePhysics();
                                 synchronized (mRunLock) {
                                     if (mRun) {
-                                        mFPS=(double)1000/(double)(mNowTime-mLastDrawTime);
-                                        Log.i("FPS: ",Double.toString(mFPS));
                                         bg.draw(c);
                                         tadhg.draw(c);
+                                        iterator=enemies.iterator();
+                                        while(iterator.hasNext()){
+                                            iterator.next().draw(c);
+                                        }
                                     }
                                 }
-                                if((mNowTime-mLastDrawTime)<MIN_WAIT){
-                                    sleep(MIN_WAIT-(mNowTime-mLastDrawTime));
-                                }
-                                mLastDrawTime=mNowTime;
+                                mFPS=(double)1000/(double)(delta);
+                                Log.i("FPS: ",Double.toString(mFPS));
                                 break;
                         }
                     }
-                }catch(InterruptedException e){
-                    e.printStackTrace();                }finally{
+                }finally{
                     if(c!=null){
                         mSurfaceHolder.unlockCanvasAndPost(c);
                     }
                 }
+                if(delta<MIN_WAIT){
+                    try {
+                        sleep(MIN_WAIT - delta);
+                    }catch(InterruptedException e){
+                        e.printStackTrace();
+                    }
+                }
+                mLastDrawTime=mNowTime;
             }
 
         }

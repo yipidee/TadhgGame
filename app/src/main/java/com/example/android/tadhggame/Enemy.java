@@ -38,7 +38,6 @@ public class Enemy extends Sprite {
     private int mType;
     private Context mContext;
     private int mState = NORMAL; //default to normal
-    private long lastDrawTime;
     private int amplitude;
     private double phase;
     private double frequency;
@@ -64,7 +63,7 @@ public class Enemy extends Sprite {
         int surfaceW = Utility.getSurfaceWidth();
         int surfaceH = Utility.getSurfaceHeight();
 
-        enemy.setX(surfaceW - w);
+        enemy.setX(surfaceW);
         enemy.setY(enemy.getAmplitude() + rand.nextInt(surfaceH - h - 2 * enemy.getAmplitude()));
         enemy.setState(state);
         enemy.setWidthCoefficient(Math.PI * 6 / (double) surfaceW);
@@ -86,9 +85,8 @@ public class Enemy extends Sprite {
         amplitude = (int) (100 + rand.nextDouble() * 100);
         frequency = rand.nextDouble() * 10;
         phase = rand.nextDouble() * Math.PI / 2;
-        lastDrawTime = System.currentTimeMillis();
         setInitialY(getY());
-        setDx(-10);
+        setDx(-0.15);
     }
 
     private int getInitialY() {
@@ -163,10 +161,9 @@ public class Enemy extends Sprite {
         }
     }
 
-    public void updatePhysics(long timeNow) {
-        long dt = timeNow - lastDrawTime;
+    public void updatePhysics(long delta) {
         int newX, newY;
-        newX = this.getX() + (int) (getDx() * dt);
+        newX = this.getX() + (int) (getDx() * delta);
 
         switch (mState) {
             default:
