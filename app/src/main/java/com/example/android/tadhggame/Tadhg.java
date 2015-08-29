@@ -2,6 +2,7 @@ package com.example.android.tadhggame;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 
@@ -43,6 +44,7 @@ public class Tadhg extends Sprite {
     private int mState;
     private int mLives;
     private boolean atTop, atBottom;
+    private Rect mArmBB;
 
     public Tadhg(Context c, int w, int h){
         super();
@@ -92,6 +94,39 @@ public class Tadhg extends Sprite {
         //get bingo values for Ready mode
         BingoTop=(int)((MAX_DY*MAX_DY)/(2*Math.abs(FALLING_DDY)))+OFFSET_Y;
         BingoBottom=surfaceH-(int)((MAX_DY*MAX_DY)/(2*Math.abs(FLYING_DDY)))-h-OFFSET_Y;
+
+        //Set 2 bounding boxes for Tadhg
+        //1 for his arm, and another for body
+        // set body bounding box
+        this.setBB(
+                this.getX(),
+                this.getY(),
+                this.getX()+this.getWidth()/3,
+                this.getY()+this.getHeight()
+        );
+        // set arm bounding box
+        mArmBB = new Rect(
+                this.getX()+this.getWidth()/3,
+                this.getY()+(int)(this.getHeight()*0.7),
+                this.getX()+this.getWidth(),
+                this.getY()+(int)(this.getHeight()*0.9)
+                );
+    }
+
+    @Override
+    public void setX(int x){
+        super.setX(x);
+        if(mArmBB!=null){
+            mArmBB.offset(this.getX()-mArmBB.left,0);
+        }
+    }
+
+    @Override
+    public void setY(int y){
+        super.setY(y);
+        if(mArmBB!=null){
+            mArmBB.offset(0,this.getY()-mArmBB.top);
+        }
     }
 
     public void livesDown(){

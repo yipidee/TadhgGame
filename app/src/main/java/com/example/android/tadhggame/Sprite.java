@@ -78,12 +78,22 @@ public abstract class Sprite {
         return mBB.intersect(r);
     }
 
+    public Rect getBB(){
+        return mBB;
+    }
+
     public void setX(int x) {
         this.x = x;
+        if(mBB!=null){
+            mBB.offset(this.x-mBB.left,0);
+        }
     }
 
     public void setY(int y) {
         this.y = y;
+        if(mBB!=null){
+            mBB.offset(0,this.y-mBB.top);
+        }
     }
 
     public double getDdx() {
