@@ -36,7 +36,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         public final static int GAMEOVER = 3;
 
         //Game Constants
-        private final static long SPAWN_TIME = 1500;
+        private final static long SPAWN_TIME = 2000;
         private final static long GHOST_TIME = 7500;
         private final static double TADHG_RATIO = 1.4427;
         private final static double ENEMY_RATIO = 0.6667;

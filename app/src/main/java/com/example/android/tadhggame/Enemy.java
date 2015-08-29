@@ -65,8 +65,9 @@ public class Enemy extends Sprite {
 
         enemy.setX(surfaceW);
         enemy.setY(enemy.getAmplitude() + rand.nextInt(surfaceH - h - 2 * enemy.getAmplitude()));
+        enemy.setInitialY(enemy.getY());
         enemy.setState(state);
-        enemy.setWidthCoefficient(Math.PI * 6 / (double) surfaceW);
+        enemy.setWidthCoefficient(Math.PI * 4 / (double) surfaceW);
         return enemy;
     }
 
@@ -82,10 +83,9 @@ public class Enemy extends Sprite {
         this.setType(rand.nextInt(7));
         mContext = c;
         this.loadDrawables();
-        amplitude = (int) (100 + rand.nextDouble() * 100);
-        frequency = rand.nextDouble() * 10;
+        amplitude = (int) (200 + rand.nextDouble() * 100);
+        frequency = 0.5 + rand.nextDouble() * 3;
         phase = rand.nextDouble() * Math.PI / 2;
-        setInitialY(getY());
         setDx(-0.15);
     }
 
@@ -160,7 +160,6 @@ public class Enemy extends Sprite {
                 break;
         }
     }
-
     public void updatePhysics(long delta) {
         int newX, newY;
         newX = this.getX() + (int) (getDx() * delta);
