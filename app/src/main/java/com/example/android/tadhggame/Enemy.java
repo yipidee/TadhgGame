@@ -35,6 +35,7 @@ public class Enemy extends Sprite {
 
     //member variable
     final private static Random rand = new Random(); //static random number generator
+    final private static double BB_SCALE_FACTOR = 0.95;
     private int mType;
     private Context mContext;
     private int mState = NORMAL; //default to normal
@@ -66,6 +67,10 @@ public class Enemy extends Sprite {
         enemy.setX(surfaceW);
         enemy.setY(enemy.getAmplitude() + rand.nextInt(surfaceH - h - 2 * enemy.getAmplitude()));
         enemy.setInitialY(enemy.getY());
+
+        //set bounding box slightly smaller than drawable
+        enemy.scaleBB(BB_SCALE_FACTOR);
+
         enemy.setState(state);
         enemy.setWidthCoefficient(Math.PI * 4 / (double) surfaceW);
         return enemy;

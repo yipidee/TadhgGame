@@ -39,7 +39,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         private final static long SPAWN_TIME = 2000;
         private final static long GHOST_TIME = 7500;
         private final static double TADHG_RATIO = 1.4427;
-        private final static double ENEMY_RATIO = 0.6667;
+        private final static double ENEMY_RATIO = 0.75;
         private final static long MIN_WAIT = 40;
 
         //member variables
@@ -69,7 +69,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         public void initThreadObjects(){
             //determine suitable sizes for spr
-            tadhgHeight=Utility.getSurfaceHeight()/5;
+            tadhgHeight=(int)((double)Utility.getSurfaceHeight()/5.5);
             tadhgWidth = (int)((double)tadhgHeight*TADHG_RATIO);
             enemyDim =(int)((double)tadhgHeight*ENEMY_RATIO);
 
@@ -128,6 +128,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                                 }
                                 mFPS=(double)1000/(double)(delta);
                                 Log.i("FPS: ",Double.toString(mFPS));
+                                //Log.i("iterator size: ",Integer.toString(enemies.size()));
                                 break;
                         }
                     }

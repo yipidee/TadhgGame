@@ -1,6 +1,7 @@
 package com.example.android.tadhggame;
 
 import android.graphics.Canvas;
+import android.graphics.Rect;
 
 /**
  * Base sprite class for all agents in Tadhg's game
@@ -8,6 +9,7 @@ import android.graphics.Canvas;
  * Date     Rev     Author         Description
  * =======  ===     ===========    ===========
  * 15.8.12    0     A. Connolly    Initial version
+ * 15.8.29    1     A. Connolly    Add bounding box
  */
 public abstract class Sprite {
 
@@ -17,6 +19,7 @@ public abstract class Sprite {
     private double ddx, ddy;   //the horizontal and vertical acceleration
     private int width, height;  //the sprite width and height
     private double angle;
+    private Rect mBB;  //bounding box matching size of sprite for collision detection
 
     public double getAngle() {
         return angle;
@@ -34,9 +37,46 @@ public abstract class Sprite {
         this.y = y;
         this.width = width;
         this.height = height;
+        mBB = new Rect(this.x,this.y,this.x+this.width,this.y+this.height);
     }
 
     abstract void draw(Canvas c);
+
+    public void scaleBB(double scaleFactor){
+        //scaled from centre, 1 results in no change
+        if(mBB==null) {
+            mBB = new Rect(
+                    this.x,
+                    this.y,
+                    this.x + this.width,
+                    this.y + this.height
+            );
+
+        }
+        if(scaleFactor!=1) {
+            mBB.left = this.width / 2 - (int) (scaleFactor * this.width / 2);
+            mBB.right = this.width / 2 + (int) (scaleFactor * this.width / 2);
+            mBB.top = this.height / 2 - (int) (scaleFactor * this.height / 2);
+            mBB.bottom = this.height / 2 + (int) (scaleFactor * this.height / 2);
+        }
+    }
+
+    public void setBB(int left, int top, int right, int bottom){
+        mBB = new Rect(
+                left,
+                top,
+                right,
+                bottom
+        );
+    }
+
+    public void setBB(Rect r){
+        mBB=r;
+    }
+
+    public boolean intersect(Rect r){
+        return mBB.intersect(r);
+    }
 
     public void setX(int x) {
         this.x = x;
