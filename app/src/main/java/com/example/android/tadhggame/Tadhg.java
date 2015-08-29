@@ -129,6 +129,13 @@ public class Tadhg extends Sprite {
         }
     }
 
+    @Override
+    public boolean intersect(Rect r){
+        boolean supRes = super.intersect(r);
+        boolean armRes = mArmBB.intersect(r);
+        return supRes|armRes;
+    }
+
     public void livesDown(){
         mLives--;
     }

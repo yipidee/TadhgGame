@@ -108,6 +108,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                                     if(enemy.getX()<-enemyDim){
                                         iterator.remove();
                                     }
+                                    if(tadhg.intersect(enemy.getBB())){
+                                        Log.i("collision:","Smash bang!!");
+                                    }
                                 }
                                 tadhg.updatePhysics(delta);
                                 if(tadhg.isPastBingoBottom()&&tadhg.getState()==Tadhg.FALLING){
