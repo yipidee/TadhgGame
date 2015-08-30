@@ -35,7 +35,7 @@ public class Enemy extends Sprite {
 
     //member variable
     final private static Random rand = new Random(); //static random number generator
-    final private static double BB_SCALE_FACTOR = 0.95;
+    final private static double BB_SCALE_FACTOR = 0.9;
     private int mType;
     private Context mContext;
     private int mState = NORMAL; //default to normal

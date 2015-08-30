@@ -24,6 +24,7 @@ import java.util.Iterator;
  * Date     Rev  Author       Description
  * =======  ===  ===========  ===========================
  * 15.8.16    0  A. Connolly  Initial implementation
+ * 15.8.30    1  A. Connolly  Added RUNNING mode
  */
 
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
@@ -80,7 +81,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             mLastDrawTime=System.currentTimeMillis()+100;
             mLastSpawnTime = mLastDrawTime;
 
-            setState(READY);
+            setState(RUNNING);
         }
 
         //starts the game thread running
@@ -94,6 +95,11 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                     c = mSurfaceHolder.lockCanvas(null);
                     synchronized (mSurfaceHolder){
                         switch(mState){
+                            /**********************************************
+                             * The READY mode is a demo of the game that
+                             * runs by itself with no collision detection
+                             * or scoring
+                             */
                             case READY:
                                 mNowTime=System.currentTimeMillis();
                                 delta = mNowTime-mLastDrawTime;
@@ -108,8 +114,53 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                                     if(enemy.getX()<-enemyDim){
                                         iterator.remove();
                                     }
+                                }
+                                tadhg.updatePhysics(delta);
+                                if(tadhg.isPastBingoBottom()&&tadhg.getState()==Tadhg.FALLING){
+                                    tadhg.setState(Tadhg.FLYING);
+                                }else if(tadhg.isPastBingoTop()&&tadhg.getState()==Tadhg.FLYING){
+                                    tadhg.setState(Tadhg.FALLING);
+                                }
+                                bg.updatePhysics();
+                                synchronized (mRunLock) {
+                                    if (mRun) {
+                                        bg.draw(c);
+                                        tadhg.draw(c);
+                                        iterator=enemies.iterator();
+                                        while(iterator.hasNext()){
+                                            iterator.next().draw(c);
+                                        }
+                                    }
+                                }
+                                mFPS=(double)1000/(double)(delta);
+                                Log.i("FPS: ",Double.toString(mFPS));
+                                //Log.i("iterator size: ",Integer.toString(enemies.size()));
+                                break;
+
+                            /**********************************************
+                             * The RUNNING mode is the actual game.
+                             * This has collision detection, user input
+                             * score keeping and ghost time
+                             */
+                            case RUNNING:
+                                mNowTime=System.currentTimeMillis();
+                                delta = mNowTime-mLastDrawTime;
+                                if((mNowTime-mLastSpawnTime)>=SPAWN_TIME) {
+                                    enemies.add(Enemy.spawn(mContext,Enemy.NORMAL,enemyDim,enemyDim));
+                                    mLastSpawnTime=mNowTime;
+                                }
+                                iterator=enemies.iterator();
+                                while(iterator.hasNext()){
+                                    enemy=iterator.next();
+                                    if(enemy.getState()!=Enemy.EXPLODED) {
+                                        enemy.updatePhysics(delta);
+                                        if (enemy.getX() < -enemyDim) {
+                                            iterator.remove();
+                                        }
+                                    }
+                                    //Collision detection
                                     if(tadhg.intersect(enemy.getBB())){
-                                        Log.i("collision:","Smash bang!!");
+                                        enemy.setState(Enemy.EXPLODED);
                                     }
                                 }
                                 tadhg.updatePhysics(delta);
