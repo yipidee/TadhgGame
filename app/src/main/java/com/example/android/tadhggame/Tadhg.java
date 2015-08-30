@@ -101,15 +101,15 @@ public class Tadhg extends Sprite {
         this.setBB(
                 this.getX(),
                 this.getY(),
-                this.getX()+this.getWidth()/3,
+                this.getX()+(int)(this.getWidth()/2.5),
                 this.getY()+this.getHeight()
         );
         // set arm bounding box
         mArmBB = new Rect(
-                this.getX()+this.getWidth()/3,
-                this.getY()+(int)(this.getHeight()*0.7),
+                this.getX()+(int)(this.getWidth()/2.5),
+                this.getY()+(int)(this.getHeight()*0.65),
                 this.getX()+this.getWidth(),
-                this.getY()+(int)(this.getHeight()*0.9)
+                this.getY()+(int)(this.getHeight()*0.85)
                 );
     }
 
@@ -125,7 +125,7 @@ public class Tadhg extends Sprite {
     public void setY(int y){
         super.setY(y);
         if(mArmBB!=null){
-            mArmBB.offset(0,this.getY()-mArmBB.top);
+            mArmBB.offset(0,y-this.getLastY());
         }
     }
 
