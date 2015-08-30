@@ -157,6 +157,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                                         if (enemy.getX() < -enemyDim) {
                                             iterator.remove();
                                         }
+                                    }else if(enemy.toDelete){
+                                        iterator.remove();
                                     }
                                     //Collision detection
                                     if(tadhg.intersect(enemy.getBB())){

@@ -33,6 +33,11 @@ public class Enemy extends Sprite {
     final public static int GHOST = 1;
     final public static int EXPLODED = 2;
 
+    //object constants
+    final private int EXPLODED_FRAMES = 6;
+    private int explodeFrameCount = 0;
+    public boolean toDelete = false;
+
     //member variable
     final private static Random rand = new Random(); //static random number generator
     final private static double BB_SCALE_FACTOR = 0.9;
@@ -121,6 +126,10 @@ public class Enemy extends Sprite {
                 break;
             default:
                 d = popped;
+                if(explodeFrameCount>EXPLODED_FRAMES){
+                    toDelete=true;
+                }
+                explodeFrameCount++;
                 break;
         }
         d.setBounds(
