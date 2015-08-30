@@ -86,7 +86,7 @@ public class Tadhg extends Sprite {
         mState=FALLING;
         MAX_DY=(double)surfaceH/(double)1450;  // max velocity pixels per millisec
         FALLING_DDY=MAX_DY/550;  // falling acceleration
-        FLYING_DDY=FALLING_DDY*-0.75;  // flying ac        BingoBottom=surfaceH-;celeration
+        FLYING_DDY=FALLING_DDY*-0.85;  // flying ac        BingoBottom=surfaceH-;celeration
         setDdy(FALLING_DDY);
         atTop=false;
         atBottom=false;

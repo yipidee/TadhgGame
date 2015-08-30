@@ -42,13 +42,14 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         private final static double TADHG_RATIO = 1.4427;
         private final static double ENEMY_RATIO = 0.75;
         private final static long MIN_WAIT = 40;
+        private boolean isGhostTime = false;
 
         //member variables
         private Handler mHandler;
         private int mState;
         private Context mContext;
         private double mFPS;
-        private long mLastDrawTime, mNowTime, mLastSpawnTime;
+        private long mLastDrawTime, mNowTime, mLastSpawnTime, mGhostTimeStart;
         private boolean mRun = false;
         private final Object mRunLock = new Object();
 
@@ -81,7 +82,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
             mLastDrawTime=System.currentTimeMillis()+100;
             mLastSpawnTime = mLastDrawTime;
 
-            setState(RUNNING);
+            setState(READY);
         }
 
         //starts the game thread running
@@ -99,12 +100,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                              * The READY mode is a demo of the game that
                              * runs by itself with no collision detection
                              * or scoring
-                             */
+                             **********************************************/
                             case READY:
                                 mNowTime=System.currentTimeMillis();
                                 delta = mNowTime-mLastDrawTime;
                                 if((mNowTime-mLastSpawnTime)>=SPAWN_TIME) {
-                                    enemies.add(Enemy.spawn(mContext,Enemy.NORMAL,enemyDim,enemyDim));
+                                    enemies.add(Enemy.spawn(mContext,enemyDim,enemyDim));
                                     mLastSpawnTime=mNowTime;
                                 }
                                 iterator=enemies.iterator();
@@ -141,13 +142,16 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                              * The RUNNING mode is the actual game.
                              * This has collision detection, user input
                              * score keeping and ghost time
-                             */
+                             **********************************************/
                             case RUNNING:
                                 mNowTime=System.currentTimeMillis();
                                 delta = mNowTime-mLastDrawTime;
                                 if((mNowTime-mLastSpawnTime)>=SPAWN_TIME) {
-                                    enemies.add(Enemy.spawn(mContext,Enemy.NORMAL,enemyDim,enemyDim));
+                                    enemies.add(Enemy.spawn(mContext,enemyDim,enemyDim));
                                     mLastSpawnTime=mNowTime;
+                                }
+                                if(mNowTime-mGhostTimeStart>GHOST_TIME){
+                                    isGhostTime=false;
                                 }
                                 iterator=enemies.iterator();
                                 while(iterator.hasNext()){
@@ -163,14 +167,13 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                                     //Collision detection
                                     if(tadhg.intersect(enemy.getBB())){
                                         enemy.setState(Enemy.EXPLODED);
+                                        if(enemy.getType()==Enemy.PUMPKIN){
+                                            isGhostTime=true;
+                                            mGhostTimeStart=mNowTime;
+                                        }
                                     }
                                 }
                                 tadhg.updatePhysics(delta);
-                                if(tadhg.isPastBingoBottom()&&tadhg.getState()==Tadhg.FALLING){
-                                    tadhg.setState(Tadhg.FLYING);
-                                }else if(tadhg.isPastBingoTop()&&tadhg.getState()==Tadhg.FLYING){
-                                    tadhg.setState(Tadhg.FALLING);
-                                }
                                 bg.updatePhysics();
                                 synchronized (mRunLock) {
                                     if (mRun) {
@@ -178,12 +181,20 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                                         tadhg.draw(c);
                                         iterator=enemies.iterator();
                                         while(iterator.hasNext()){
-                                            iterator.next().draw(c);
+                                            enemy=iterator.next();
+                                            if(enemy.getState()!=Enemy.EXPLODED) {
+                                                if (isGhostTime) {
+                                                    enemy.setState(Enemy.GHOST);
+                                                } else {
+                                                    enemy.setState(Enemy.NORMAL);
+                                                }
+                                            }
+                                            enemy.draw(c);
                                         }
                                     }
                                 }
-                                mFPS=(double)1000/(double)(delta);
-                                Log.i("FPS: ",Double.toString(mFPS));
+                                //mFPS=(double)1000/(double)(delta);
+                                //Log.i("FPS: ",Double.toString(mFPS));
                                 //Log.i("iterator size: ",Integer.toString(enemies.size()));
                                 break;
                         }
@@ -232,8 +243,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
                     case READY:
                         if(action==MotionEvent.ACTION_DOWN){
-                            //setState(RUNNING);
-                            setState(READY);
+                            setState(RUNNING);
                         }
                         evHandled=true;
                         break;
@@ -261,7 +271,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         mThread = new GameThread(holder,c,new Handler(){
             public void handleMessage(Message m){
                 //as yet no need for this function, but just in case
-                Log.i("handler", m.toString());
+                //Log.i("handler", m.toString());
             }
         });
 

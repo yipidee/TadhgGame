@@ -60,7 +60,7 @@ public class Enemy extends Sprite {
         init(c);
     }
 
-    public static Enemy spawn(Context c, int state, int w, int h) {
+    public static Enemy spawn(Context c, int w, int h) {
         Enemy enemy = new Enemy(c);
         enemy.setWidth(w);
         enemy.setHeight(h);
@@ -76,7 +76,6 @@ public class Enemy extends Sprite {
         //set bounding box slightly smaller than drawable
         enemy.scaleBB(BB_SCALE_FACTOR);
 
-        enemy.setState(state);
         enemy.setWidthCoefficient(Math.PI * 4 / (double) surfaceW);
         return enemy;
     }
@@ -186,7 +185,7 @@ public class Enemy extends Sprite {
 
             case GHOST:
                 newY = (int) (this.getInitialY() +
-                        amplitude * Math.sin(frequency * ((double) newX * getWidthCoefficient()) + phase * rand.nextInt(10)));
+                        amplitude * Math.sin(frequency * ((double) newX * getWidthCoefficient()) + phase));// * rand.nextInt(10)));
                 break;
         }
         this.setX(newX);
