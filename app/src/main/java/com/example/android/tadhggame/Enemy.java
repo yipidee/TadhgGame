@@ -33,6 +33,9 @@ public class Enemy extends Sprite {
     final public static int GHOST = 1;
     final public static int EXPLODED = 2;
 
+    //Point constants
+    final public static int POINT_RETURNED = -3;
+
     //object constants
     final private int EXPLODED_FRAMES = 6;
     private int explodeFrameCount = 0;
@@ -49,6 +52,7 @@ public class Enemy extends Sprite {
     private double frequency;
     private double widthCoefficient;
     private int initialY;
+    private boolean mPointsReturned = false;
 
     //member drawables
     private Drawable img;
@@ -78,6 +82,19 @@ public class Enemy extends Sprite {
 
         enemy.setWidthCoefficient(Math.PI * 4 / (double) surfaceW);
         return enemy;
+    }
+
+    public int getPoints(int lastType, int lastScore){
+        int points = POINT_RETURNED;
+        if(!mPointsReturned){
+            if(lastType==this.getState()){
+                points=lastScore*2;
+            }else{
+                points=1;
+            }
+            mPointsReturned=true;
+        }
+        return points;
     }
 
     private double getWidthCoefficient() {

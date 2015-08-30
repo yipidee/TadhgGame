@@ -53,6 +53,17 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         private boolean mRun = false;
         private final Object mRunLock = new Object();
 
+        /**********************************************
+         * SCORING
+         * Essentially 1 point per enemy
+         * Doubles for same enemy in a row
+         * Resets to 1 if different enemy hit
+         * Ghosts are -1, doubling per ghost
+         */
+        private int mScore = 0;
+        private int thisScore = 0;
+        private int mLastEnemyType = -1;
+
         private SurfaceHolder mSurfaceHolder;
 
         private Tadhg tadhg;
@@ -167,6 +178,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
                                     //Collision detection
                                     if(tadhg.intersect(enemy.getBB())){
                                         enemy.setState(Enemy.EXPLODED);
+                                        thisScore=enemy.getPoints(mLastEnemyType,thisScore);
+                                        if(thisScore!=Enemy.POINT_RETURNED){
+                                            mScore+=thisScore;
+                                        }
+                                        Log.i("score:",Integer.toString(mScore));
+
                                         if(enemy.getType()==Enemy.PUMPKIN){
                                             isGhostTime=true;
                                             mGhostTimeStart=mNowTime;
