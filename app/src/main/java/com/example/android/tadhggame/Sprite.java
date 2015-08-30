@@ -14,7 +14,7 @@ import android.graphics.Rect;
 public abstract class Sprite {
 
     //member variables
-    private int x, y;          //the (x,y) coordinates of the sprite
+    private int x, y, lastX, lastY;          //the (x,y) coordinates of the sprite
     private double dx, dy;     //the horizontal and vertical velocity
     private double ddx, ddy;   //the horizontal and vertical acceleration
     private int width, height;  //the sprite width and height
@@ -35,6 +35,8 @@ public abstract class Sprite {
     public Sprite(int x, int y, int width, int height) {
         this.x = x;
         this.y = y;
+        this.lastX=x;
+        this.lastY=y;
         this.width = width;
         this.height = height;
         mBB = new Rect(this.x,this.y,this.x+this.width,this.y+this.height);
@@ -45,7 +47,7 @@ public abstract class Sprite {
     public void scaleBB(double scaleFactor){
         //scaled from centre, 1 results in no change
         if(mBB==null) {
-            mBB = new Rect(
+            setBB(
                     this.x,
                     this.y,
                     this.x + this.width,
@@ -54,10 +56,10 @@ public abstract class Sprite {
 
         }
         if(scaleFactor!=1) {
-            mBB.left = this.width / 2 - (int) (scaleFactor * this.width / 2);
-            mBB.right = this.width / 2 + (int) (scaleFactor * this.width / 2);
-            mBB.top = this.height / 2 - (int) (scaleFactor * this.height / 2);
-            mBB.bottom = this.height / 2 + (int) (scaleFactor * this.height / 2);
+            mBB.left += (int)((double)this.width * ( 1 - scaleFactor) / 2.0);
+            mBB.right -= (int)((double)this.width * ( 1 - scaleFactor) / 2.0);
+            mBB.top += (int)((double)this.width * ( 1 - scaleFactor) / 2.0);
+            mBB.bottom -= (int)((double)this.width * ( 1 - scaleFactor) / 2.0);
         }
     }
 
@@ -83,16 +85,26 @@ public abstract class Sprite {
     }
 
     public void setX(int x) {
+        this.lastX=this.x;
         this.x = x;
         if(mBB!=null){
-            mBB.offset(this.x-mBB.left,0);
+            mBB.offset(this.x-this.lastX,0);
         }
     }
 
+    public int getLastX(){
+        return this.lastX;
+    }
+
+    public int getLastY(){
+        return this.lastY;
+    }
+
     public void setY(int y) {
+        this.lastY=this.y;
         this.y = y;
         if(mBB!=null){
-            mBB.offset(0,this.y-mBB.top);
+            mBB.offset(0,this.y-this.lastY);
         }
     }
 
